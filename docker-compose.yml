@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  frontend:
+    container_name: frontend
+    build: 
+      context: ./frontend
+      dockerfile: ./docker/Dockerfile
+    volumes:
+      - ./frontend/src:/app/src
+    ports:
+      - 9001:8080
+    networks:
+      - planilha-network
+
+  nginx:
+    container_name: nginx
+    image: nginx:1.21.6
+    volumes:
+      - ./:/app
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    ports:
+      - "9002:80"
+    restart: always
+    networks:
+      - planilha-network
+
+  backend:
+    container_name: backend
+    build: 
+      context: ./backend
+      dockerfile: ./docker/Dockerfile
+    volumes:
+      - ./backend/src:/app/src
+    depends_on:
+      - nginx
+    networks:
+      - planilha-network
+
+networks:
+  planilha-network:
+    driver: bridge
