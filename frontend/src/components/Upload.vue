@@ -4,15 +4,20 @@
     <p class="label">{{ textLabel }}</p>
     <button type="submit">{{ submitText }}</button>
     <p v-if="!!errorMessage" class="error-message">{{ errorMessage }}</p>
+    <p v-if="!!successMessage" class="success-message">{{ successMessage }}</p>
   </form>
 </template>
 
 <script>
+
+import { uploadFile } from "../services/api";
+
 export default {
   data() {
     return {
       file: null,
       errorMessage: '',
+      successMessage: '',
       fileName: ''
     };
   },
@@ -36,39 +41,28 @@ export default {
       this.file = event.target.files[0];
       this.fileName = this.file.name;
       this.errorMessage = "";
+      this.successMessage = "";
     },
     async handleSubmit() {
-      if (!this.file) {
-        this.errorMessage = 'Por favor, escolha um arquivo.';
-        return;
-      }
 
-      const allowedExtensions = ['.xlsx', '.csv'];
-      const fileExtension = this.file.name.split('.').pop().toLowerCase();
-      if (!allowedExtensions.includes('.' + fileExtension)) {
-        this.errorMessage = 'Formato de arquivo não suportado. Por favor, escolha um arquivo .xlsx ou .csv.';
-        return;
-      }
+      uploadFile(this.file)
+          .then((response) => {
+            this.successMessage = response.message;
+            this.errorMessage = "";
+          })
+          .catch(error => {
+            this.errorMessage = error;
+            this.successMessage = "";
+          })
+          .finally(() => {
+            this.resetFileInput();
+          });
 
-      try {
-        const formData = new FormData();
-        formData.append('file', this.file);
-
-        // Aqui você pode fazer uma requisição para o servidor para enviar o arquivo
-        // Exemplo usando fetch:
-        // const response = await fetch('URL_DO_SEU_ENDPOINT', {
-        //   method: 'POST',
-        //   body: formData
-        // });
-        // console.log('Upload successful', response);
-
-        this.file = null;
-        this.errorMessage = '';
-
-      } catch (error) {
-        console.error('Erro ao fazer upload', error);
-        this.errorMessage = 'Ocorreu um erro ao fazer upload do arquivo.';
-      }
+    },
+    resetFileInput() {
+      this.$refs.fileInput.value = '';
+      this.file = null;
+      this.fileName = '';
     }
   }
 };
@@ -126,4 +120,10 @@ form > button:active{
   color: red;
   margin-top: 10px;
 }
+
+.success-message {
+  color: green;
+  margin-top: 10px;
+}
+
 </style>

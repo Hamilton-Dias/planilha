@@ -32,6 +32,10 @@ services:
       dockerfile: ./docker/Dockerfile
     volumes:
       - ./backend/src:/app/src
+      - ./backend/src/uploads:/app/uploads
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+      - /etc/shadow:/etc/shadow:ro
     depends_on:
       - nginx
     networks:
