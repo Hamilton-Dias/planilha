@@ -8,72 +8,61 @@
   </form>
 </template>
 
-<script>
+<script setup>
 
+import { ref, computed } from 'vue';
 import { uploadFile } from "../services/api";
+import { useChartData } from '../stores/chart-data.js';
 
-export default {
-  data() {
-    return {
-      file: null,
-      errorMessage: '',
-      successMessage: '',
-      fileName: ''
-    };
-  },
-  props: {
-    text: {
-      type: String,
-      default: 'Arraste a sua planilha ou clique aqui.'
-    },
-    submitText: {
-      type: String,
-      default: 'Enviar'
-    }
-  },
-  computed: {
-    textLabel() {
-      return this.file ? 'Arquivo selecionado: ' + this.fileName : this.text;
-    }
-  },
-  methods: {
-    handleFileChange(event) {
-      this.file = event.target.files[0];
-      this.fileName = this.file.name;
-      this.errorMessage = "";
-      this.successMessage = "";
-    },
-    async handleSubmit() {
+const chartDataStore = useChartData();
 
-      uploadFile(this.file)
-          .then((response) => {
-            this.successMessage = response.message;
-            this.errorMessage = "";
-          })
-          .catch(error => {
-            this.errorMessage = error;
-            this.successMessage = "";
-          })
-          .finally(() => {
-            this.resetFileInput();
-          });
+const file = ref(null);
+const errorMessage = ref('');
+const successMessage = ref('');
+const fileName = ref('');
 
-    },
-    resetFileInput() {
-      this.$refs.fileInput.value = '';
-      this.file = null;
-      this.fileName = '';
-    }
+const text = 'Arraste a sua planilha ou clique aqui.';
+const submitText = 'Enviar';
+
+const textLabel = computed(() => {
+  return file.value ? 'Arquivo selecionado: ' + fileName.value : text;
+});
+
+const handleFileChange = (event) => {
+  file.value = event.target.files[0];
+  fileName.value = file.value.name;
+  errorMessage.value = "";
+  successMessage.value = "";
+};
+
+const handleSubmit = async () => {
+  try {
+    const response = await uploadFile(file.value);
+    chartDataStore.setChartData(response.data);
+    successMessage.value = response.message;
+    errorMessage.value = "";
+  } catch (error) {
+    errorMessage.value = error;
+    successMessage.value = "";
+  } finally {
+    resetFileInput();
   }
 };
+
+const resetFileInput = () => {
+  file.value = null;
+  fileName.value = '';
+};
+
 </script>
 
 <style scoped>
 form {
-  width: 100%;
+  width: 50%;
   height: 200px;
-  border: 4px dashed var(--white);
+  border: 4px dashed var(--gray-500);
   position: relative;
+  margin: 0 auto;
 }
 
 form > .label {
@@ -81,7 +70,7 @@ form > .label {
   height: 100%;
   text-align: center;
   line-height: 170px;
-  color: var(--white);
+  color: var(--gray-700);
   font-family: Arial;
 }
 
@@ -97,14 +86,14 @@ form > input {
 
 form > button {
   margin: 0;
-  color: #fff;
-  background: #16a085;
+  color: var(--white);
+  background: var(--green-500);
   border: none;
   width: calc(100% + 8px);
   height: 35px;
   margin-left: -4px;
   border-radius: 4px;
-  border-bottom: 4px solid var(#117A60);
+  border-bottom: 4px solid var(--green-500);
   transition: all .2s ease;
   outline: none;
 }
@@ -116,12 +105,12 @@ form > button:active{
 }
 
 .error-message {
-  color: red;
+  color: var(--red-500);
   margin-top: 10px;
 }
 
 .success-message {
-  color: green;
+  color: var(--green-500);
   margin-top: 10px;
 }
 

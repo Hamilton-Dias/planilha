@@ -41,12 +41,27 @@ def _prepare_df(df):
     return df
 
 def _generate_mrr_dict(df):
-    mrr_data = df.groupby('month_year')['amount'].sum().reset_index(name='mrr')
-    mrr_data['mrr'] = round(mrr_data['mrr'], 2) 
+    active_or_cancelled_subscriptions = df[(df['subscription_status'] == 'Ativa') | ((df['subscription_status'] == 'Cancelada') & (df['cancel_date'] >= df['month_year'].dt.end_time))]
+
+    mrr_data = active_or_cancelled_subscriptions.groupby('month_year')['amount'].sum().reset_index(name='mrr')
+    mrr_data['mrr'] = round(mrr_data['mrr'], 2)
     mrr_data['month_year'] = mrr_data['month_year'].astype(str)
-    return mrr_data.set_index('month_year').to_dict()['mrr']
+
+    mrr_dict = mrr_data.set_index('month_year').to_dict()['mrr']
+
+    return mrr_dict
 
 def _generate_churn_dict(df):
-    churn_data = df[df['subscription_status'] == 'Cancelada'].groupby('month_year').size().reset_index(name='churns')
+    active_or_cancelled_subscriptions = df[(df['subscription_status'] == 'Ativa') | ((df['subscription_status'] == 'Cancelada') & (df['cancel_date'] >= df['month_year'].dt.end_time))]
+    active_subscriptions = active_or_cancelled_subscriptions[active_or_cancelled_subscriptions['subscription_status'] == 'Ativa'].groupby('month_year').size().reset_index(name='active_subscriptions')
+    cancelled_subscriptions = active_or_cancelled_subscriptions[active_or_cancelled_subscriptions['subscription_status'] == 'Cancelada'].groupby('month_year').size().reset_index(name='cancelled_subscriptions')
+
+    churn_data = pd.merge(active_subscriptions, cancelled_subscriptions, on='month_year', how='outer')
+    churn_data['churn_rate'] = (churn_data['cancelled_subscriptions'] / (churn_data['active_subscriptions'] + churn_data['cancelled_subscriptions'])) * 100
+    churn_data['churn_rate'] = churn_data['churn_rate'].round(2)
+    churn_data.fillna(0, inplace=True)
     churn_data['month_year'] = churn_data['month_year'].astype(str)
-    return churn_data.set_index('month_year').to_dict()['churns']
+
+    churn_dict = churn_data.set_index('month_year').to_dict()['churn_rate']
+
+    return churn_dict

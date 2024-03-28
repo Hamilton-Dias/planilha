@@ -1,6 +1,6 @@
 <template>
   <div style="height: 100%; width: 50%;">
-    <Bar
+    <Line
         id="churn-rate-chart"
         :options="chartOptions"
         :data="chartData"
@@ -8,45 +8,34 @@
   </div>
 </template>
 
-<script>
-import { Bar } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+<script setup>
+import { computed } from 'vue'
+import { Line } from 'vue-chartjs'
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
-const dados = {
-  "2022-01":"122",
-  "2022-02":"77",
-  "2022-03":"44",
-  "2022-04":"34",
-  "2022-05":"36",
-  "2022-06":"34",
-  "2022-07":"23",
-  "2022-08":"20",
-  "2022-09":"5"
-}
-
-export default {
-  name: 'ChurnRateChart',
-  components: { Bar },
-  computed: {
-    chartData() {
-      return {
-        labels: Object.keys(dados),
-        datasets: [
-          {
-            label: 'Churn Rate',
-            data: Object.values(dados),
-          }
-        ]
-      }
-    },
-    chartOptions() {
-      return {
-        responsive: true,
-        backgroundColor: "white"
-      }
-    }
+const props = defineProps({
+  data: {
+    type: Object,
+    required: true
   }
+})
+
+const chartData = computed(() => {
+  return {
+    labels: Object.keys(props.data),
+    datasets: [
+      {
+        label: 'Churn Rate',
+        data: Object.values(props.data),
+      }
+    ]
+  }
+})
+
+const chartOptions = {
+  responsive: true,
+  backgroundColor: '#f87979',
 }
 </script>

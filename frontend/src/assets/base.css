@@ -1,12 +1,19 @@
 /* color palette from <https://github.com/vuejs/theme> */
 :root {
-  --white: #ffffff;
+  --white: #FFFFFF;
   --black: #000000;
+
+  --gray-500: #666666;
+  --gray-700: #333333;
+
+  --green-500: #16A085;
+
+  --red-500: #E74C3C;
 }
 
 body {
   min-height: 100vh;
-  background: var(--black);
+  background: var(--white);
   transition:
     color 0.5s,
     background-color 0.5s;
