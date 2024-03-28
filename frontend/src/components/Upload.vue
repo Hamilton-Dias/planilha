@@ -70,7 +70,7 @@ export default {
 
 <style scoped>
 form {
-  width: 500px;
+  width: 100%;
   height: 200px;
   border: 4px dashed var(--white);
   position: relative;
@@ -100,9 +100,8 @@ form > button {
   color: #fff;
   background: #16a085;
   border: none;
-  width: 508px;
+  width: calc(100% + 8px);
   height: 35px;
-  margin-top: -20px;
   margin-left: -4px;
   border-radius: 4px;
   border-bottom: 4px solid var(#117A60);
