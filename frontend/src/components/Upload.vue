@@ -114,4 +114,13 @@ form > button:active{
   margin-top: 10px;
 }
 
+@media screen and (max-width: 1000px) {
+  form {
+    width: 90%;
+  }
+  
+  form > .label {
+    line-height: unset;
+  }
+}
 </style>
