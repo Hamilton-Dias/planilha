@@ -47,6 +47,10 @@ const chartOptions = {
       },
       grid: {
         drawTicks: false,
+      },
+      title: {
+        display: true,
+        text: "Reais (R$)"
       }
     },
     x: {
@@ -55,6 +59,10 @@ const chartOptions = {
       },
       border: {
         display: false,
+      },
+      title: {
+        display: true,
+        text: "Mês/Ano"
       }
     },
   },

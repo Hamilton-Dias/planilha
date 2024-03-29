@@ -30,7 +30,7 @@ onMounted(() => {
 <style scoped>
   button {
     position: absolute;
-    top: -40px;
+    top: -70px;
     left: 0;
 
     margin: 0;
